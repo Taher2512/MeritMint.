@@ -14,6 +14,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { updatePoints } from "../cadence/transactions/updatePoints";
 import { getPoints } from "../cadence/scripts/getPoints";
 import { getFields } from "../cadence/scripts/getFields";
+import { addField } from "../cadence/transactions/addField";
 
 const initialFieldValues = { id: uuidv4(), name: "", email: "", points: "" };
 
@@ -74,6 +75,7 @@ const AddPointsForm = ({ fcl }) => {
   const [data, setData] = useState({});
   const [open, setOpen] = useState(false);
   const [formFields, setFormFields] = useState([]);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
 
   const handleChange = (id, event) => {
     const { name, value } = event.target;
@@ -209,6 +211,97 @@ const AddPointsForm = ({ fcl }) => {
     setFormFields(newFormFields);
   };
 
+  const SpringModal = ({ isOpen, setIsOpen, fcl }) => {
+    return (
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsOpen(false)}
+            className="bg-slate-900/20 backdrop-blur p-8 fixed inset-0 z-50 grid place-items-center overflow-y-scroll cursor-pointer"
+          >
+            <motion.div
+              initial={{ scale: 0, rotate: "12.5deg" }}
+              animate={{ scale: 1, rotate: "0deg" }}
+              exit={{ scale: 0, rotate: "0deg" }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-gradient-to-br from-violet-600 to-indigo-600 text-white p-6 rounded-lg w-full max-w-lg shadow-xl cursor-default relative overflow-hidden"
+            >
+              <FiPlusCircle className="text-white/10 rotate-12 text-[250px] absolute z-0 -top-24 -left-24" />
+              <div className="relative z-10">
+                <div className="bg-white w-16 h-16 mb-2 rounded-full text-3xl text-indigo-600 grid place-items-center mx-auto">
+                  <FiPlusCircle />
+                </div>
+                <h3 className="text-3xl font-bold text-center mb-2">
+                  Add a Field
+                </h3>
+                <div className="flex justify-center items-center my-6">
+                  <input
+                    id="add_field"
+                    placeholder="Mathematics"
+                    className="text-black py-1.5 px-3 outline-none rounded-sm w-3/4"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="bg-transparent hover:bg-white/10 transition-colors text-white font-semibold w-full py-2 rounded"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsOpen(false);
+                      addAField(fcl);
+                    }}
+                    className="bg-white hover:opacity-90 transition-opacity text-indigo-600 font-semibold w-full py-2 rounded"
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
+  };
+
+  const addAField = async (fcl) => {
+    const field = document.getElementById("add_field").value;
+    field.toString();
+    const transactionId = await fcl
+      .send([
+        fcl.transaction(addField),
+        fcl.args([fcl.arg(field, fcl.t.String)]),
+        fcl.payer(fcl.authz),
+        fcl.proposer(fcl.authz),
+        fcl.authorizations([fcl.authz]),
+        fcl.limit(9999),
+      ])
+      .then(fcl.decode);
+
+    console.log(transactionId);
+
+    await fcl.tx(transactionId).onceSealed();
+    console.log("Transaction sealed");
+
+    // Immediately-invoked function expression (IIFE) to use async-await
+    (async () => {
+      try {
+        const fetchedFields = await fcl
+          .send([fcl.script(getFields), fcl.args([])])
+          .then(fcl.decode);
+
+        setAllFields(fetchedFields);
+      } catch (error) {
+        console.error("Failed to fetch fields:", error);
+      }
+    })();
+  };
+
   useEffect(() => {
     // This effect listens for changes in `data` and `field`
     // and calls `handleFieldSelect` if the selected field's data is available
@@ -242,6 +335,19 @@ const AddPointsForm = ({ fcl }) => {
           <span className="font-medium text-sm">{field}</span>
           <FiChevronDown />
         </button>
+        <div>
+          <button
+            onClick={() => setModalIsOpen(true)}
+            className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-medium px-4 py-2 rounded hover:opacity-90 transition-opacity"
+          >
+            Open Modal
+          </button>
+          <SpringModal
+            isOpen={modalIsOpen}
+            setIsOpen={setModalIsOpen}
+            fcl={fcl}
+          />
+        </div>
 
         {open && (
           <motion.ul
