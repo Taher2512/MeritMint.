@@ -142,10 +142,10 @@ function Demo() {
         students={students}
         setStudents={setStudents}
       />
-      <button onClick={logIn}>Log In</button>
+      {/* <button onClick={logIn}>Log In</button> */}
       {/* <button onClick={getAllFields}>Get Fields</button>
       <button onClick={getAllMails}>Get All Emails</button> */}
-      <h2>Current Address: {user && user.addr ? user.addr : "----------"}</h2>
+      {/* <h2>Current Address: {user && user.addr ? user.addr : "----------"}</h2> */}
       {/* <button onClick={updateStudentPoints}>Update Points</button>
       <button onClick={getAllPoints}>Get All Points</button> */}
       <PointsDatatable
@@ -156,6 +156,10 @@ function Demo() {
         students={students}
         setStudents={setStudents}
       />
+      <div className="circle2 absolute bottom-0 right-40"></div>
+      <div className="circle2 absolute top-12 right-8 "></div>
+      <div className="circle2 absolute bottom-20"></div>
+      <div className="circle2 absolute top-0 left-40"></div>
     </>
   );
 }
