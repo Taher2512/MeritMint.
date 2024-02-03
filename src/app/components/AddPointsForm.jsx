@@ -15,59 +15,9 @@ import { updatePoints } from "../cadence/transactions/updatePoints";
 import { getPoints } from "../cadence/scripts/getPoints";
 import { getFields } from "../cadence/scripts/getFields";
 import { addField } from "../cadence/transactions/addField";
+import { FaPlus, FaTrash } from "react-icons/fa";
 
 const initialFieldValues = { id: uuidv4(), name: "", email: "", points: "" };
-
-// const data = {
-//   Mathematics: {
-//     id: 1,
-//     names: ["Taher0", "Taher1", "Taher2", "Taher3", "Taher4"],
-//     emails: [
-//       "123@gmail.com",
-//       "456@gmail.com",
-//       "789@gmail.com",
-//       "abc@gmail.com",
-//       "def@gmail.com",
-//     ],
-//     points: [20, 30, 80, 60, 40],
-//   },
-//   Physics: {
-//     id: 2,
-//     names: ["Ali0", "Ali1", "Ali2", "Ali3", "Ali4"],
-//     emails: [
-//       "ali0@gmail.com",
-//       "ali1@gmail.com",
-//       "ali2@gmail.com",
-//       "ali3@gmail.com",
-//       "ali4@gmail.com",
-//     ],
-//     points: [55, 65, 75, 85, 95],
-//   },
-//   Computer: {
-//     id: 3,
-//     names: ["Sara0", "Sara1", "Sara2", "Sara3", "Sara4"],
-//     emails: [
-//       "sara0@gmail.com",
-//       "sara1@gmail.com",
-//       "sara2@gmail.com",
-//       "sara3@gmail.com",
-//       "sara4@gmail.com",
-//     ],
-//    points: [88, 78, 68, 58, 98],
-//   },
-//   English: {
-//     id: 4,
-//     names: ["John0", "John1", "John2", "John3", "John4"],
-//     emails: [
-//       "john0@gmail.com",
-//       "john1@gmail.com",
-//       "john2@gmail.com",
-//       "john3@gmail.com",
-//       "john4@gmail.com",
-//     ],
-//     points: [45, 55, 65, 75, 85],
-//   },
-// };
 
 const AddPointsForm = ({ fcl }) => {
   const [field, setField] = useState("Select Field");
@@ -76,6 +26,8 @@ const AddPointsForm = ({ fcl }) => {
   const [open, setOpen] = useState(false);
   const [formFields, setFormFields] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [message, setMessage] = useState("Please select a field");
+  const [isData, setIsData] = useState(false);
 
   const handleChange = (id, event) => {
     const { name, value } = event.target;
@@ -189,6 +141,20 @@ const AddPointsForm = ({ fcl }) => {
         allFieldPoints
       );
       console.log("Transformed Data:", transformedData);
+      if (
+        field !== "Select Field" &&
+        transformedData[tempField].emails.length == 0
+      ) {
+        setMessage("No data to display");
+        setIsData(false);
+      }
+      if (
+        field !== "Select Field" &&
+        transformedData[tempField].emails.length !== 0
+      ) {
+        setMessage("");
+        setIsData(true);
+      }
       setData(transformedData);
     } catch (error) {
       console.error("Error fetching or transforming data:", error);
@@ -326,109 +292,127 @@ const AddPointsForm = ({ fcl }) => {
   }, []);
 
   return (
-    <div>
-      <motion.div animate={open ? "open" : "closed"} className="relative">
-        <button
-          onClick={() => setOpen(!open)}
-          className="flex items-center gap-2 px-3 py-2 rounded-md text-indigo-50 bg-indigo-500 hover:bg-indigo-600 transition-colors"
-        >
-          <span className="font-medium text-sm">{field}</span>
-          <FiChevronDown />
-        </button>
-        <div>
-          <button
-            onClick={() => setModalIsOpen(true)}
-            className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-medium px-4 py-2 rounded hover:opacity-90 transition-opacity"
-          >
-            Open Modal
-          </button>
-          <SpringModal
-            isOpen={modalIsOpen}
-            setIsOpen={setModalIsOpen}
-            fcl={fcl}
-          />
-        </div>
-
-        {open && (
-          <motion.ul
-            initial="closed"
-            animate="open"
-            exit="closed"
-            variants={{
-              open: { opacity: 1, scaleY: 1 },
-              closed: { opacity: 0, scaleY: 0 },
-            }}
-            className="absolute top-[120%] left-[50%] w-48 bg-white shadow-xl rounded-lg z-10"
-          >
-            {allFields.map((field) => (
-              <motion.li
-                key={field}
-                onClick={async () => {
-                  setField(field);
-                  await getFieldData(field);
-                }}
-                className="p-2 text-xs font-medium whitespace-nowrap rounded-md hover:bg-indigo-100 text-slate-700 hover:text-indigo-500 transition-colors cursor-pointer"
-              >
-                {field}
-              </motion.li>
-            ))}
-          </motion.ul>
-        )}
-      </motion.div>
-
-      <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-        {formFields.map((field, index) => (
-          <div key={field.id} className="flex flex-col space-y-2">
-            <input
-              type="text"
-              name="name"
-              value={field.name}
-              onChange={(e) => handleChange(field.id, e)}
-              placeholder="Name"
-              className="border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-gray-700 rounded-md shadow-sm"
-            />
-            <input
-              type="email"
-              name="email"
-              value={field.email}
-              onChange={(e) => handleChange(field.id, e)}
-              placeholder="Email"
-              className="border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-gray-700 rounded-md shadow-sm"
-            />
-            <input
-              type="number"
-              name="points"
-              value={field.points}
-              readOnly // Assuming original points should not be editable
-              className="border-gray-300 text-gray-700 rounded-md shadow-sm cursor-not-allowed"
-            />
-            <input
-              type="number"
-              name="addPoints"
-              value={field.addPoints}
-              onChange={(e) => handleChange(field.id, e)}
-              placeholder="Add Points"
-              className="border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-gray-700 rounded-md shadow-sm"
+    <main className="overflow-x-hidden w-screen h-screen flex items-center justify-center bg-[#0F172A]">
+      <div className="flex flex-col justify-center w-11/12 border-2 border-blue-700 rounded-xl px-20 bg-white/25 backdrop-blur-sm z-10">
+        <motion.div animate={open ? "open" : "closed"} className="relative">
+          <div className="flex gap-4 mt-8">
+            <button
+              onClick={() => setOpen(!open)}
+              className="gilroy-bold flex w-1/2 items-center gap-2  rounded-md text-indigo-50 bg-indigo-500 hover:bg-indigo-600 transition-colors justify-between"
+            >
+              <h1></h1>
+              <span className="font-medium text-lg">{field}</span>
+              <span className="border-l-2 px-4">
+                <FiChevronDown size={25} />
+              </span>
+            </button>
+            <button
+              onClick={() => setModalIsOpen(true)}
+              className="gilroy-bold w-1/2 text-lg bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-medium px-4 py-2 rounded hover:opacity-90 transition-opacity"
+            >
+              Add field
+            </button>
+            <SpringModal
+              isOpen={modalIsOpen}
+              setIsOpen={setModalIsOpen}
+              fcl={fcl}
             />
           </div>
-        ))}
-        <button
-          type="button"
-          onClick={addNewStudentField}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-        >
-          Add New Student
-        </button>
-        <div className="flex justify-end items-center mt-4">
-          <button
-            type="submit"
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
-          >
-            Submit Form
-          </button>
-        </div>
-      </form>
-    </div>
+
+          {open && (
+            <motion.ul
+              initial="closed"
+              animate="open"
+              exit="closed"
+              variants={{
+                open: { opacity: 1, scaleY: 1 },
+                closed: { opacity: 0, scaleY: 0 },
+              }}
+              className="w-1/2 bg-white shadow-xl rounded-lg z-10"
+            >
+              {allFields.map((field) => (
+                <motion.li
+                  key={field}
+                  onClick={async () => {
+                    setField(field);
+                    await getFieldData(field);
+                  }}
+                  className="p-2 text-sm border-b-2 border-blue-700 gilroy-light whitespace-nowrap hover:bg-indigo-100 text-slate-700 hover:text-indigo-500 transition-colors cursor-pointer"
+                >
+                  {field}
+                </motion.li>
+              ))}
+            </motion.ul>
+          )}
+        </motion.div>
+
+        {isData && (
+          <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+            {formFields.map((field, index) => (
+              <div key={field.id} className="flex gap-3 justify-center">
+                <input
+                  type="text"
+                  name="name"
+                  value={field.name}
+                  onChange={(e) => handleChange(field.id, e)}
+                  placeholder="Name"
+                  className="w-full py-2 px-4 gilroy-light bg-slate-200 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-gray-700 rounded-md shadow-sm"
+                />
+                <input
+                  type="email"
+                  name="email"
+                  value={field.email}
+                  onChange={(e) => handleChange(field.id, e)}
+                  placeholder="Email"
+                  className="w-full py-2 px-4 gilroy-light bg-slate-200 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-gray-700 rounded-md shadow-sm"
+                />
+                <input
+                  type="number"
+                  name="points"
+                  value={field.points}
+                  readOnly // Assuming original points should not be editable
+                  className="w-1/4 py-2 px-4 gilroy-light bg-slate-200 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-gray-700 rounded-md shadow-sm"
+                />
+                <input
+                  type="number"
+                  name="addPoints"
+                  value={field.addPoints}
+                  onChange={(e) => handleChange(field.id, e)}
+                  placeholder="Add Points"
+                  className="w-1/4 py-2 px-4 gilroy-light bg-slate-200 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-gray-700 rounded-md shadow-sm"
+                />
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addNewStudentField}
+              className="mt-4 px-4 py-2 flex items-center justify-center gilroy-bold bg-blue-500 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+            >
+              <FaPlus color="#fff" size={14} />
+              {" "}
+              Add
+            </button>
+            <div className="flex justify-end items-center mt-4">
+              <button
+                type="submit"
+                class="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 gilroy-bold w-full rounded-lg text-xl px-5 py-2.5 text-center mb-8"
+              >
+                Submit Form
+              </button>
+            </div>
+          </form>
+        )}
+        {!isData && (
+          <span className="text-center gilroy-light py-4 font-medium text-lg text-white justify-center items-center w-full">
+            {message}
+          </span>
+        )}
+      </div>
+      <div className="circle absolute -top-5 -left-10 z-0"></div>
+      <div className="circle absolute top-10 right-80 z-0"></div>
+      <div className="circle absolute bottom-20 left-20 z-0"></div>
+      <div className="circle absolute bottom-5 right-5 z-0"></div>
+    </main>
   );
 };
 

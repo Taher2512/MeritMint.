@@ -12,9 +12,29 @@
   /* src: url("/fonts/Gilroy-Extrabold.otf"); */
 }
 
-.gilroy-light{
-    font-family: "gilroy-light";
+.gilroy-light {
+  font-family: "gilroy-light";
 }
-.gilroy-bold{
-    font-family: "gilroy-bold";
+.gilroy-bold {
+  font-family: "gilroy-bold";
+}
+
+.circle {
+  display: block;
+  background: black;
+  border-radius: 50%;
+  height: 200px;
+  width: 200px;
+  margin: 0;
+  background: radial-gradient(circle at 100px 100px, #1d84f1, #000);
+}
+.circle2 {
+  display: block;
+  background: black;
+  border-radius: 50%;
+  height: 200px;
+  width: 200px;
+  margin: 0;
+  background: radial-gradient(circle at 100px 100px, #9132E8, #000);
+  z-index: 0;
 }
