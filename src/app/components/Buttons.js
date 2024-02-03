@@ -12,9 +12,14 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { IconType } from "react-icons";
 import { addField } from "../cadence/transactions/addField";
+import { getFields } from "../cadence/scripts/getFields";
+import { getPoints } from "../cadence/scripts/getPoints";
 
-function Buttons({ fetchResults, field, setField, fcl }) {
+function Buttons({ fetchResults, field, setField, fcl, setData, setTopThree }) {
   const [open, setOpen] = useState(false);
+  // const [data, setData] = useState({});
+  // const [field, setField] = useState("Select Field");
+  const [allFields, setAllFields] = useState([]);
   const [newField, setNewField] = useState("");
 
   const Option = ({ text, /* Icon, */ setOpen }) => {
@@ -35,37 +40,182 @@ function Buttons({ fetchResults, field, setField, fcl }) {
     );
   };
 
+  const getFieldData = async (tempField) => {
+    try {
+      if (tempField === "Select Field") return;
+      setOpen(false);
+      const getAllFieldPoints = async () => {
+        const allFieldPoints = await fcl
+          .send([
+            fcl.script(getPoints),
+            fcl.args([fcl.arg(tempField, fcl.t.String)]),
+          ])
+          .then(fcl.decode);
+
+        return allFieldPoints;
+      };
+
+      const transformBackendData = async (fieldName, backendData) => {
+        // Initialize the structure with the field name as the key
+        const transformedData = {
+          [fieldName]: {
+            id: Date.now(), // Placeholder ID
+            names: [], // Leave the names array blank as per requirement
+            emails: [],
+            points: [],
+          },
+        };
+
+        // Iterate over the backend data object to fill the emails and points arrays
+        Object.entries(backendData).forEach(([email, point]) => {
+          transformedData[fieldName].emails.push(email);
+          transformedData[fieldName].points.push(parseInt(point, 10)); // Ensure points are stored as numbers
+        });
+
+        return transformedData;
+      };
+
+      // Fetch and transform the data
+      const allFieldPoints = await getAllFieldPoints();
+      const transformedData = await transformBackendData(
+        tempField,
+        allFieldPoints
+      );
+      console.log("Transformed Data:", transformedData);
+      setData(transformedData);
+    } catch (error) {
+      console.error("Error fetching or transforming data:", error);
+    }
+  };
+
+  // Modified to return transformed data instead of setting it to state
+  const getFieldDataModified = async (tempField) => {
+    if (tempField === "Select Field") return null;
+    const allFieldPoints = await fcl
+      .send([
+        fcl.script(getPoints),
+        fcl.args([fcl.arg(tempField, fcl.t.String)]),
+      ])
+      .then(fcl.decode);
+
+    // Assuming backendData is structured correctly for transformation
+    // Initialize the structure with the field name as the key
+    const transformedData = {
+      id: Date.now(), // Placeholder ID
+      emails: [],
+      points: [],
+    };
+
+    // Iterate over the allFieldPoints object to fill the emails and points arrays
+    Object.entries(allFieldPoints).forEach(([email, point]) => {
+      transformedData.emails.push(email);
+      transformedData.points.push(parseInt(point, 10)); // Ensure points are stored as numbers
+    });
+
+    return transformedData;
+  };
+
+  const calculateTopEmailsAcrossFields = async () => {
+    const fields = await fcl
+      .send([fcl.script(getFields), fcl.args([])])
+      .then(fcl.decode);
+    const emailPointsMap = {}; // Maps emails to an array of their points across fields
+
+    for (const field of fields) {
+      const fieldData = await getFieldDataModified(field);
+      if (fieldData) {
+        fieldData.emails.forEach((email, index) => {
+          if (!emailPointsMap[email]) emailPointsMap[email] = [];
+          emailPointsMap[email].push(fieldData.points[index]);
+        });
+      }
+    }
+
+    // Calculate average points for each email
+    const emailAverages = Object.entries(emailPointsMap).map(
+      ([email, points]) => ({
+        email,
+        averagePoints:
+          points.reduce((acc, cur) => acc + cur, 0) / points.length,
+      })
+    );
+
+    // Sort by average points and take the top 3
+    const topEmails = emailAverages
+      .sort((a, b) => b.averagePoints - a.averagePoints)
+      .slice(0, 3);
+
+    console.log(topEmails);
+
+    setTopThree(topEmails);
+  };
+
+  // const endTerm = async () => {
+  //   // start: fetch all fields
+  //   const fields = await fcl
+  //     .send([fcl.script(getFields), fcl.args([])])
+  //     .then(fcl.decode);
+  //   console.log(fields);
+  //   // end: fetch all fields
+  // };
+
+  useEffect(() => {
+    // Immediately-invoked function expression (IIFE) to use async-await
+    (async () => {
+      try {
+        const fetchedFields = await fcl
+          .send([fcl.script(getFields), fcl.args([])])
+          .then(fcl.decode);
+
+        setAllFields(fetchedFields);
+      } catch (error) {
+        console.error("Failed to fetch fields:", error);
+      }
+    })();
+  }, []);
+
   return (
     <div className="p-8 pb-56 flex items-center justify-center bg-white">
       <motion.div animate={open ? "open" : "closed"} className="relative">
         <button
-          onClick={() => setOpen((pv) => !pv)}
-          className="flex items-center gap-2 px-3 py-2 rounded-md text-indigo-50 bg-indigo-500 hover:bg-indigo-500 transition-colors"
+          onClick={() => setOpen(!open)}
+          className="flex items-center gap-2 px-3 py-2 rounded-md text-indigo-50 bg-indigo-500 hover:bg-indigo-600 transition-colors"
         >
           <span className="font-medium text-sm">{field}</span>
-          <motion.span variants={iconVariants}>
-            <FiChevronDown />
-          </motion.span>
+          <FiChevronDown />
         </button>
 
-        <motion.ul
-          initial={wrapperVariants.closed}
-          variants={wrapperVariants}
-          style={{ originY: "top", translateX: "-50%" }}
-          className="flex flex-col gap-2 p-2 rounded-lg bg-white shadow-xl absolute top-[120%] left-[50%] w-48 overflow-hidden"
-        >
-          {/* <Option setOpen={setOpen} Icon={FiEdit} text="Mathematics" />
-          <Option setOpen={setOpen} Icon={FiPlusSquare} text="Physics" />
-          <Option setOpen={setOpen} Icon={FiShare} text="Computer Science" />
-          <Option setOpen={setOpen} Icon={FiTrash} text="English" /> */}
-          <Option setOpen={setOpen} text="Mathematics" />
-          <Option setOpen={setOpen} text="Physics" />
-          <Option setOpen={setOpen} text="Computer Science" />
-          <Option setOpen={setOpen} text="English" />
-        </motion.ul>
+        {open && (
+          <motion.ul
+            initial="closed"
+            animate="open"
+            exit="closed"
+            variants={{
+              open: { opacity: 1, scaleY: 1 },
+              closed: { opacity: 0, scaleY: 0 },
+            }}
+            className="absolute top-[120%] left-[50%] w-48 bg-white shadow-xl rounded-lg z-10"
+          >
+            {allFields.map((field) => (
+              <motion.li
+                key={field}
+                onClick={async () => {
+                  setField(field);
+                  await getFieldData(field);
+                }}
+                className="p-2 text-xs font-medium whitespace-nowrap rounded-md hover:bg-indigo-100 text-slate-700 hover:text-indigo-500 transition-colors cursor-pointer"
+              >
+                {field}
+              </motion.li>
+            ))}
+          </motion.ul>
+        )}
       </motion.div>
-      <button className="px-6 py-2 font-medium bg-indigo-500 text-white">
-        End Sem
+      <button
+        onClick={() => calculateTopEmailsAcrossFields()}
+        className="px-6 py-2 font-medium bg-indigo-500 text-white"
+      >
+        End Term
       </button>
     </div>
   );

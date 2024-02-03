@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Buttons from "../components/Buttons";
 import PointsDatatable from "../components/PointsDatatable";
 import { getFields } from "../cadence/scripts/getFields";
@@ -24,6 +24,8 @@ fcl
 function Demo() {
   const [field, setField] = useState("Select Field");
   const [user, setUser] = useState("Select Field");
+  const [data, setData] = useState({});
+  const [topThree, setTopThree] = useState([]);
 
   const logIn = async () => {
     fcl.authenticate();
@@ -97,21 +99,32 @@ function Demo() {
     if (field === "Select Field") return;
   };
 
+  useEffect(() => {
+    console.log(data);
+  }, [data]);
+
   return (
     <>
       <Buttons
         fetchResults={fetchResults}
         field={field}
         setField={setField}
+        setData={setData}
         fcl={fcl}
+        setTopThree={setTopThree}
       />
       <button onClick={logIn}>Log In</button>
-      <button onClick={getAllFields}>Get Fields</button>
-      <button onClick={getAllMails}>Get All Emails</button>
+      {/* <button onClick={getAllFields}>Get Fields</button>
+      <button onClick={getAllMails}>Get All Emails</button> */}
       <h2>Current Address: {user && user.addr ? user.addr : "----------"}</h2>
-      <button onClick={updateStudentPoints}>Update Points</button>
-      <button onClick={getAllPoints}>Get All Points</button>
-      <PointsDatatable field={field} setField={setField} />
+      {/* <button onClick={updateStudentPoints}>Update Points</button>
+      <button onClick={getAllPoints}>Get All Points</button> */}
+      <PointsDatatable
+        data={data}
+        field={field}
+        setField={setField}
+        topThree={topThree}
+      />
     </>
   );
 }
