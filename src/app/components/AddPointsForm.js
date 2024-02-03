@@ -111,12 +111,13 @@ const AddPointsForm = ({ fcl }) => {
         points: [],
       },
     };
+    console.log(field.name);
 
-    formFields.forEach((field) => {
-      transformedData[field].names.push(field.name);
-      transformedData[field].emails.push(field.email);
+    formFields.forEach((formField) => {
+      transformedData[field].names.push(formField.name);
+      transformedData[field].emails.push(formField.email);
       // Assuming you want to add the new points to the original points
-      const addedPoints = field.addPoints ? Number(field.addPoints) : 0;
+      const addedPoints = formField.addPoints ? Number(formField.addPoints) : 0;
       transformedData[field].points.push(addedPoints);
     });
 
