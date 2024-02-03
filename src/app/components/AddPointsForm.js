@@ -186,7 +186,7 @@ const AddPointsForm = ({ fcl }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsOpen(false)}
-            className="bg-slate-900/20 backdrop-blur p-8 fixed inset-0 z-50 grid place-items-center overflow-y-scroll cursor-pointer"
+            className="bg-slate-900/20 backdrop-blur p-8 fixed inset-0 z-50 grid place-items-center overflow-y-scroll cursor-pointer "
           >
             <motion.div
               initial={{ scale: 0, rotate: "12.5deg" }}
@@ -328,7 +328,7 @@ const AddPointsForm = ({ fcl }) => {
                 open: { opacity: 1, scaleY: 1 },
                 closed: { opacity: 0, scaleY: 0 },
               }}
-              className="w-1/2 bg-white shadow-xl rounded-lg z-10"
+              className="w-1/2 bg-white shadow-xl rounded-lg "
             >
               {allFields.map((field) => (
                 <motion.li

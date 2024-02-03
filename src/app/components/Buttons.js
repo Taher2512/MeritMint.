@@ -175,14 +175,16 @@ function Buttons({ fetchResults, field, setField, fcl, setData, setTopThree }) {
   }, []);
 
   return (
-    <div className="p-8 pb-56 flex items-center justify-center bg-white">
+    <div className=" pt-32 flex items-center justify-center gap-10">
       <motion.div animate={open ? "open" : "closed"} className="relative">
         <button
           onClick={() => setOpen(!open)}
-          className="flex items-center gap-2 px-3 py-2 rounded-md text-indigo-50 bg-indigo-500 hover:bg-indigo-600 transition-colors"
+          className="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 gilroy-bold rounded-lg text-sm pl-5 py-2 text-center inline-flex items-center w-40"
         >
-          <span className="font-medium text-sm">{field}</span>
-          <FiChevronDown />
+          <span className="font-medium text-lg mr-2">{field}</span>
+          <span className="px-1 border-l-2">
+            <FiChevronDown />
+          </span>
         </button>
 
         {open && (
@@ -194,7 +196,7 @@ function Buttons({ fetchResults, field, setField, fcl, setData, setTopThree }) {
               open: { opacity: 1, scaleY: 1 },
               closed: { opacity: 0, scaleY: 0 },
             }}
-            className="absolute top-[120%] left-[50%] w-48 bg-white shadow-xl rounded-lg z-10"
+            className="absolute shadow-xl rounded-lg z-50 mt-2 w-40 bg-white"
           >
             {allFields.map((field) => (
               <motion.li
@@ -203,7 +205,7 @@ function Buttons({ fetchResults, field, setField, fcl, setData, setTopThree }) {
                   setField(field);
                   await getFieldData(field);
                 }}
-                className="p-2 text-xs font-medium whitespace-nowrap rounded-md hover:bg-indigo-100 text-slate-700 hover:text-indigo-500 transition-colors cursor-pointer"
+                className="p-2 gilroy-light text-sm font-medium whitespace-nowrap rounded-md hover:bg-indigo-100 text-slate-700 hover:text-indigo-500 transition-colors cursor-pointer"
               >
                 {field}
               </motion.li>
@@ -213,9 +215,9 @@ function Buttons({ fetchResults, field, setField, fcl, setData, setTopThree }) {
       </motion.div>
       <button
         onClick={() => calculateTopEmailsAcrossFields()}
-        className="px-6 py-2 font-medium bg-indigo-500 text-white"
+        className="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 gilroy-bold rounded-lg text-lg px-5 py-2 text-center inline-flex items-center "
       >
-        End Term
+        Results
       </button>
     </div>
   );

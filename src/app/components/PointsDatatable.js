@@ -88,14 +88,24 @@ const topThreeColumns = [
 ];
 
 const customStyles = {
+  table: {
+    style: {
+      color: "white",
+      backgroundColor: "#A262DE",
+    },
+  },
   headCells: {
     style: {
+      FontFace: "Gilroy",
       fontSize: "16px",
       fontWeight: "bold",
+      backgroundColor: "#F3F4F6",
     },
   },
   rows: {
     style: {
+      color: "white",
+      backgroundColor: "#A262DE",
       minHeight: "72px",
     },
   },
@@ -137,7 +147,7 @@ function PointsDatatable({ field, setField, data, setData, topThree }) {
           data={topThree.length !== 0 ? topThree : fieldData}
           pagination
           striped
-          highlightOnHover
+          
           pointerOnHover
           responsive
           customStyles={customStyles}
