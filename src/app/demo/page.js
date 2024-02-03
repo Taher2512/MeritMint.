@@ -8,32 +8,59 @@ import { updatePoints } from "../cadence/transactions/updatePoints";
 import { getPoints } from "../cadence/scripts/getPoints";
 import { getMails } from "../cadence/scripts/getMails";
 import * as fcl from "@onflow/fcl";
-
+import "../cadence/config";
 // Signer - 0xfe62afac91a25d47
 // Contract Address - 0xfe62afac91a25d47fcl
-fcl
-  .config()
-  .put("app.detail.title", "My Flow NFT DApp")
-  .put(
-    "app.detail.icon",
-    "https://www.google.com/url?sa=i&url=https%3A%2F%2Fcryptologos.cc%2Fflow&psig=AOvVaw1TyxWeaD6I6CMxyisapG_Y&ust=1706894077576000&source=images&cd=vfe&opi=89978449&ved=0CBMQjRxqFwoTCIDlm4_SioQDFQAAAAAdAAAAABAE"
-  )
-  .put("accessNode.api", "https://rest-testnet.onflow.org")
-  .put("discovery.wallet", "https://fcl-discovery.onflow.org/testnet/authn");
-
 function Demo() {
   const [field, setField] = useState("Select Field");
   const [user, setUser] = useState("Select Field");
   const [data, setData] = useState({});
   const [topThree, setTopThree] = useState([]);
-
+  const [students, setStudents] = useState([]);
+  fcl
+    .config()
+    .put("app.detail.title", "Merit Mint")
+    .put(
+      "app.detail.icon",
+      "https://raw.githubusercontent.com/ThisIsCodeXpert/Flow-NFT-DApp-Tutorial-Series/main/cats/cat5.svg"
+    )
+    .put("accessNode.api", "https://rest-testnet.onflow.org")
+    .put("discovery.wallet", "https://fcl-discovery.onflow.org/testnet/authn");
   const logIn = async () => {
     fcl.authenticate();
-    fcl.currentUser().subscribe((user) => {
-      setUser(user);
-    });
+    setupCollection();
   };
+  async function setupCollection() {
+    console.log("Fcl authz", fcl.authz);
+    const transactionId = await fcl.mutate({
+      cadence: `
+     import ExampleNFT from 0xDeployer
+     import NonFungibleToken from 0xStandard
+     import MetadataViews from 0xStandard
 
+     transaction() {
+       
+       prepare(signer: AuthAccount) {
+         if signer.borrow<&ExampleNFT.Collection>(from: ExampleNFT.CollectionStoragePath) == nil {
+           signer.save(<- ExampleNFT.createEmptyCollection(), to: ExampleNFT.CollectionStoragePath)
+           signer.link<&ExampleNFT.Collection{NonFungibleToken.CollectionPublic, MetadataViews.ResolverCollection}>(ExampleNFT.CollectionPublicPath, target: ExampleNFT.CollectionStoragePath)
+         }
+       }
+
+       execute {
+         
+       }
+     }
+     `,
+      args: (arg, t) => [],
+      proposer: fcl.authz,
+      payer: fcl.authz,
+      authorizations: [fcl.authz],
+      limit: 999,
+    });
+
+    console.log("Transaction Id", transactionId);
+  }
   const getAllFields = async () => {
     const fields = await fcl
       .send([fcl.script(getFields), fcl.args([])])
@@ -100,8 +127,8 @@ function Demo() {
   };
 
   useEffect(() => {
-    console.log(data);
-  }, [data]);
+    fcl.currentUser().subscribe(setUser);
+  }, []);
 
   return (
     <>
@@ -112,6 +139,8 @@ function Demo() {
         setData={setData}
         fcl={fcl}
         setTopThree={setTopThree}
+        students={students}
+        setStudents={setStudents}
       />
       <button onClick={logIn}>Log In</button>
       {/* <button onClick={getAllFields}>Get Fields</button>
@@ -124,6 +153,8 @@ function Demo() {
         field={field}
         setField={setField}
         topThree={topThree}
+        students={students}
+        setStudents={setStudents}
       />
     </>
   );

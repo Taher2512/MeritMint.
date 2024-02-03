@@ -12,6 +12,7 @@
     "@onflow/fcl": "^1.9.0",
     "@react-three/drei": "^9.97.0",
     "@react-three/fiber": "^8.15.16",
+    "firebase": "^10.8.0",
     "framer-motion": "^11.0.3",
     "next": "14.1.0",
     "react": "^18",

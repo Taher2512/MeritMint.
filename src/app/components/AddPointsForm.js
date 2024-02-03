@@ -16,7 +16,6 @@ import { getPoints } from "../cadence/scripts/getPoints";
 import { getFields } from "../cadence/scripts/getFields";
 import { addField } from "../cadence/transactions/addField";
 import { FaPlus, FaTrash } from "react-icons/fa";
-
 const initialFieldValues = { id: uuidv4(), name: "", email: "", points: "" };
 
 const AddPointsForm = ({ fcl }) => {
@@ -49,6 +48,7 @@ const AddPointsForm = ({ fcl }) => {
         email: "",
         points: "",
         addPoints: "",
+        walletAddress: "",
       },
     ]);
   };
@@ -63,6 +63,7 @@ const AddPointsForm = ({ fcl }) => {
         names: [],
         emails: [],
         points: [],
+        walletAddresses: [],
       },
     };
     console.log(field.name);
@@ -70,6 +71,7 @@ const AddPointsForm = ({ fcl }) => {
     formFields.forEach((formField) => {
       transformedData[field].names.push(formField.name);
       transformedData[field].emails.push(formField.email);
+      transformedData[field].walletAddresses.push(formField.walletAddress);
       // Assuming you want to add the new points to the original points
       const addedPoints = formField.addPoints ? Number(formField.addPoints) : 0;
       transformedData[field].points.push(addedPoints);
@@ -122,6 +124,7 @@ const AddPointsForm = ({ fcl }) => {
             names: [], // Leave the names array blank as per requirement
             emails: [],
             points: [],
+            walletAddresses: [],
           },
         };
 
@@ -173,6 +176,7 @@ const AddPointsForm = ({ fcl }) => {
       email: email,
       points: fieldData.points[index],
       addPoints: "",
+      walletAddress: "",
     }));
     setFormFields(newFormFields);
   };
@@ -206,7 +210,7 @@ const AddPointsForm = ({ fcl }) => {
                 <div className="flex justify-center items-center my-6">
                   <input
                     id="add_field"
-                    placeholder="Mathematics"
+                    placeholder="Field"
                     className="text-black py-1.5 px-3 outline-none rounded-sm w-3/4"
                   />
                 </div>
@@ -379,6 +383,14 @@ const AddPointsForm = ({ fcl }) => {
                   value={field.addPoints}
                   onChange={(e) => handleChange(field.id, e)}
                   placeholder="Add Points"
+                  className="w-1/4 py-2 px-4 gilroy-light bg-slate-200 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-gray-700 rounded-md shadow-sm"
+                />
+                <input
+                  type="text"
+                  name="walletAddress"
+                  value={field.walletAddress}
+                  onChange={(e) => handleChange(field.id, e)}
+                  placeholder="Wallet Address"
                   className="w-1/4 py-2 px-4 gilroy-light bg-slate-200 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-gray-700 rounded-md shadow-sm"
                 />
               </div>

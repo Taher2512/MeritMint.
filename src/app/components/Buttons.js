@@ -15,7 +15,16 @@ import { addField } from "../cadence/transactions/addField";
 import { getFields } from "../cadence/scripts/getFields";
 import { getPoints } from "../cadence/scripts/getPoints";
 
-function Buttons({ fetchResults, field, setField, fcl, setData, setTopThree }) {
+function Buttons({
+  fetchResults,
+  field,
+  setField,
+  fcl,
+  setData,
+  setTopThree,
+  students,
+  setStudents,
+}) {
   const [open, setOpen] = useState(false);
   // const [data, setData] = useState({});
   // const [field, setField] = useState("Select Field");
@@ -63,6 +72,7 @@ function Buttons({ fetchResults, field, setField, fcl, setData, setTopThree }) {
             names: [], // Leave the names array blank as per requirement
             emails: [],
             points: [],
+            walletAddresses: [],
           },
         };
 
@@ -144,6 +154,20 @@ function Buttons({ fetchResults, field, setField, fcl, setData, setTopThree }) {
     const topEmails = emailAverages
       .sort((a, b) => b.averagePoints - a.averagePoints)
       .slice(0, 3);
+
+    console.log(topEmails);
+
+    students = students.slice(0, students.length / 2);
+
+    topEmails.forEach((topEmail) => {
+      const matchedItem = students.find(
+        (student) => student.email === topEmail.email
+      );
+      if (matchedItem) {
+        topEmail.name = matchedItem.name;
+        topEmail.walletAddress = matchedItem.walletAddress;
+      }
+    });
 
     console.log(topEmails);
 
