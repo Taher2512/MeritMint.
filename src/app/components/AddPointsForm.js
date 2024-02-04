@@ -16,17 +16,23 @@ import { getPoints } from "../cadence/scripts/getPoints";
 import { getFields } from "../cadence/scripts/getFields";
 import { addField } from "../cadence/transactions/addField";
 import { FaPlus, FaTrash } from "react-icons/fa";
+import { db, app } from "../firebase/config";
+import { collection, getDocs, query } from "firebase/firestore";
+import { useRouter } from "next/navigation";
 const initialFieldValues = { id: uuidv4(), name: "", email: "", points: "" };
 
 const AddPointsForm = ({ fcl }) => {
   const [field, setField] = useState("Select Field");
   const [allFields, setAllFields] = useState([]);
   const [data, setData] = useState({});
+  const [students, setStudents] = useState([]);
   const [open, setOpen] = useState(false);
   const [formFields, setFormFields] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [message, setMessage] = useState("Please select a field");
   const [isData, setIsData] = useState(false);
+
+  const router = useRouter();
 
   const handleChange = (id, event) => {
     const { name, value } = event.target;
@@ -99,7 +105,19 @@ const AddPointsForm = ({ fcl }) => {
 
     await fcl.tx(transactionId).onceSealed();
     console.log("Transaction sealed");
+    window.location.reload();
   };
+
+  async function getStudents() {
+    let arr = [];
+    const q = query(collection(db, "students"));
+    getDocs(q).then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        arr.push(doc.data());
+      });
+      setStudents(arr);
+    });
+  }
 
   // Immediately-invoked function expression (IIFE) to handle async operations
   const getFieldData = async (tempField) => {
@@ -133,6 +151,27 @@ const AddPointsForm = ({ fcl }) => {
           transformedData[fieldName].emails.push(email);
           transformedData[fieldName].points.push(parseInt(point, 10)); // Ensure points are stored as numbers
         });
+
+        let arr = students;
+        // arr = arr.slice(0, arr.length / 2);
+        const filteredData = arr.filter((item) =>
+          transformedData[fieldName].emails.includes(item.email)
+        );
+
+        // console.log("FD", filteredData);
+
+        transformedData[fieldName].emails.forEach((transformedItem) => {
+          const matchedItem = filteredData.find(
+            (filteredItem) => filteredItem.email === transformedItem
+          );
+          if (matchedItem) {
+            transformedData[fieldName].names.push(matchedItem.name);
+            transformedData[fieldName].walletAddresses.push(
+              matchedItem.walletAddress
+            );
+          }
+        });
+        console.log("NTD", transformedData[fieldName]);
 
         return transformedData;
       };
@@ -176,7 +215,7 @@ const AddPointsForm = ({ fcl }) => {
       email: email,
       points: fieldData.points[index],
       addPoints: "",
-      walletAddress: "",
+      walletAddress: fieldData.walletAddresses[index],
     }));
     setFormFields(newFormFields);
   };
@@ -282,6 +321,7 @@ const AddPointsForm = ({ fcl }) => {
 
   useEffect(() => {
     // Immediately-invoked function expression (IIFE) to use async-await
+    getStudents();
     (async () => {
       try {
         const fetchedFields = await fcl
@@ -393,7 +433,6 @@ const AddPointsForm = ({ fcl }) => {
                   placeholder="Add Points"
                   className="w-1/4 py-2 px-4 gilroy-light bg-slate-200 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-gray-700 rounded-md shadow-sm"
                 />
-                
               </div>
             ))}
             <button
