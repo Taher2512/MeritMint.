@@ -57,6 +57,7 @@ const customStyles = {
   },
   rows: {
     style: {
+      FontFace: "Gilroy",
       color: "white",
       backgroundColor: "#A262DE",
       minHeight: "72px",

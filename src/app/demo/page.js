@@ -122,9 +122,9 @@ function Demo() {
         students={students}
         setStudents={setStudents}
       />
-      <div className="circle2 absolute bottom-0 right-40"></div>
+      <div className="circle2 absolute -bottom-16 -right-10"></div>
       <div className="circle2 absolute top-12 right-8 "></div>
-      <div className="circle2 absolute bottom-20"></div>
+      <div className="circle2 absolute bottom-20 -left-10"></div>
       <div className="circle2 absolute top-0 left-40"></div>
     </>
   );
