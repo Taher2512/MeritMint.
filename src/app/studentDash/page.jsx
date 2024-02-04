@@ -7,6 +7,8 @@ import * as fcl from "@onflow/fcl";
 import { useRouter } from "next/navigation";
 import { db } from "../firebase/config";
 import { addDoc, collection, getDocs, query } from "firebase/firestore";
+import { IoMdRefreshCircle } from "react-icons/io";
+
 function page() {
   let [sName, setSName] = useState("");
   let [sMail, setSMail] = useState("");
@@ -14,13 +16,81 @@ function page() {
   const [user, setUser] = useState("");
   const [visible, setvisible] = useState(true);
   const router = useRouter();
+  const [tokens, setTokens] = useState(0)
+  useEffect(() => {
+    fcl.currentUser().subscribe(setUser);
+  }, [])
+  
   useEffect(() => {
     if(!user.addr){
-    fcl.currentUser().subscribe(setUser);
+    setupVault()
+    
     }
+    if(user.addr){
+      
+      
+    } 
+    
     getStudents();
   }, [user]);
- 
+ async function setupVault() {
+
+    const transactionId = await fcl.mutate({
+      cadence: `
+      import FungibleToken from 0x9a0766d93b6608b7
+      import ExampleToken from 0xef9ccb5efe4778dd
+
+      transaction() {
+
+        prepare(signer: AuthAccount) {
+          // These next lines are the only ones you would normally do.
+          if signer.borrow<&ExampleToken.Vault>(from: ExampleToken.VaultStoragePath) == nil {
+              // Create a new ExampleToken Vault and put it in storage
+              signer.save(<-ExampleToken.createEmptyVault(), to: ExampleToken.VaultStoragePath)
+
+              // Create a public capability to the Vault that only exposes
+              // the deposit function through the Receiver interface
+              signer.link<&ExampleToken.Vault{FungibleToken.Receiver}>(ExampleToken.VaultReceiverPath, target: ExampleToken.VaultStoragePath)
+
+              // Create a public capability to the Vault that only exposes
+              // the balance field through the Balance interface
+              signer.link<&ExampleToken.Vault{FungibleToken.Balance}>(ExampleToken.VaultBalancePath, target: ExampleToken.VaultStoragePath)
+          }
+        }
+      }
+      `,
+      args: (arg, t) => [],
+      proposer: fcl.authz,
+      payer: fcl.authz,
+      authorizations: [fcl.authz],
+      limit: 999
+    });
+
+    console.log('Transaction Id', transactionId);
+    await localStorage.setItem('Student Vault',user.addr)
+  }
+  async function getTokens() {
+    
+    const result = await fcl.query({
+      cadence: `
+      import FungibleToken from 0x9a0766d93b6608b7
+      import ExampleToken from 0xef9ccb5efe4778dd
+
+      pub fun main(account: Address): UFix64 {
+          let vaultRef = getAccount(account).getCapability(ExampleToken.VaultBalancePath)
+                          .borrow<&ExampleToken.Vault{FungibleToken.Balance}>()
+                          ?? panic("Could not borrow Balance reference to the Vault")
+
+          return vaultRef.balance
+      }
+      `,
+      args: (arg, t) => [
+        arg(user?.addr, t.Address)
+      ]
+    });
+
+    setTokens(result);
+  }
   
   async function getStudents() {
     const q = query(collection(db, "students"));
@@ -64,11 +134,7 @@ function page() {
         {visible == false && (
           <button
             type="button"
-            onClick={() => {
-              fcl.unauthenticate();
-              localStorage.setItem("Vault", "");
-              router.push("/");
-            }}
+            onClick={fcl.unauthenticate}
             className="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center"
           >
             Logout
@@ -122,11 +188,15 @@ function page() {
           </div>
         </span>
         <div className="w-full px-60 z-10">
-          <div className="w-full bg-gray-500/50 border-2 border-blue-500 flex flex-col items-center justify-between py-8 px-6 rounded-lg z-10">
+          <div className=" relative w-full bg-gray-500/50 border-2 border-blue-500 flex flex-col items-center justify-between py-8 px-6 rounded-lg z-10">
             <h1 className="gilroy-bold text-4xl text-white">
               Flow Tokens Earned
             </h1>
-            <h1 className="text-white text-3xl mt-8">123</h1>
+            <h1 className="text-white text-3xl mt-8">{tokens}</h1>
+            <button className="absolute right-8 top-8 text-white" onClick={getTokens}>
+            <IoMdRefreshCircle size={30} />
+            </button>
+
           </div>
         </div>
       </main>
