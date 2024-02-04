@@ -185,7 +185,7 @@ export default function RewardStudent({ params }) {
                 <h1 className="text-lg font-semibold text-gray-100 mb-2">
                   Transfer Tokens
                 </h1>
-                <img src="/planee.png" alt="plane" />
+                <img src="/plane.png" alt="plane" />
               </div>
               <div className="flex flex-col">
                 <label className="text-sm text-[#38E8C6]">address</label>
