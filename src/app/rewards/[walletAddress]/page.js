@@ -68,8 +68,8 @@ function RewardStudent({ params }) {
 
   return (
     <div>
-      <button onClick={() => mintNFTs()}>Mint</button>
-      <span>{params.walletAddress}</span>
+      {/* <button onClick={() => mintNFTs()}>Mint</button>
+      <span>{params.walletAddress}</span> */}
     </div>
   );
 }
