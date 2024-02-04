@@ -16,13 +16,13 @@ function Footer() {
             </a>
             <ul class="flex flex-wrap items-center mb-6 text-sm font-medium text-gray-500 sm:mb-0 dark:text-gray-400">
               <li>
-                <a href="#" class="hover:underline me-4 md:me-6">
-                  About
+                <a href="#HowItWorks" class="hover:underline me-4 md:me-6">
+                  How it works
                 </a>
               </li>
               <li>
-                <a href="#" class="hover:underline me-4 md:me-6">
-                  Privacy Policy
+                <a href="#features" class="hover:underline me-4 md:me-6">
+                  Features
                 </a>
               </li>
               <li>

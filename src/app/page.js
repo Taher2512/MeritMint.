@@ -27,9 +27,9 @@ export default function Home() {
             <HeroHeading />
           </div>
         </div>
-        <Steps />
-        <Features />
-        <Footer/>
+        <Steps id="HowItWorks" />
+        <Features id="features" />
+        <Footer />
       </main>
     </>
   );

@@ -4,9 +4,12 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import * as fcl from "@onflow/fcl";
 import "../../../cadence/config";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { app, db } from "../../../firebase/config.js";
 function Navbar() {
   const [user, setUser] = useState("");
   const router = useRouter();
+  const [teacher, setTeacher] = useState();
 
   fcl
     .config()
@@ -20,7 +23,6 @@ function Navbar() {
 
   const logIn = async () => {
     fcl.authenticate();
-    console.log("Services", user.services);
   };
   async function setupCollection() {
     console.log("Fcl authz", fcl.authz);
@@ -55,7 +57,14 @@ function Navbar() {
   }
 
   useEffect(() => {
-    if (user.services) {
+    teacherData();
+    if (user.addr) {
+      
+      if (!teacher.includes(user.addr)) {
+        router.push("/studentDash");
+      }
+    }
+    if (user.services && user.services[0]) {
       console.log("Services", user.services[0].scoped.email);
     }
 
@@ -63,7 +72,17 @@ function Navbar() {
       fcl.currentUser().subscribe(setUser);
     }
   }, [user]);
-
+  const teacherData = async () => {
+    const q = query(collection(db, "teacher"));
+    let arr = [];
+    getDocs(q).then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        arr.push(doc.data().walletAddress);
+      });
+    });
+    console.log(arr);
+    setTeacher(arr);
+  };
   return (
     <>
       <div className="absolute z-10 left-1/4 mt-5 px-8 py-5 bg-white/30 w-1/2 rounded-xl backdrop-blur-sm flex items-center justify-between">
