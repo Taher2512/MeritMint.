@@ -26,41 +26,7 @@ function Demo() {
     )
     .put("accessNode.api", "https://rest-testnet.onflow.org")
     .put("discovery.wallet", "https://fcl-discovery.onflow.org/testnet/authn");
-  const logIn = async () => {
-    fcl.authenticate();
-    setupCollection();
-  };
-  async function setupCollection() {
-    console.log("Fcl authz", fcl.authz);
-    const transactionId = await fcl.mutate({
-      cadence: `
-     import ExampleNFT from 0xDeployer
-     import NonFungibleToken from 0xStandard
-     import MetadataViews from 0xStandard
 
-     transaction() {
-       
-       prepare(signer: AuthAccount) {
-         if signer.borrow<&ExampleNFT.Collection>(from: ExampleNFT.CollectionStoragePath) == nil {
-           signer.save(<- ExampleNFT.createEmptyCollection(), to: ExampleNFT.CollectionStoragePath)
-           signer.link<&ExampleNFT.Collection{NonFungibleToken.CollectionPublic, MetadataViews.ResolverCollection}>(ExampleNFT.CollectionPublicPath, target: ExampleNFT.CollectionStoragePath)
-         }
-       }
-
-       execute {
-         
-       }
-     }
-     `,
-      args: (arg, t) => [],
-      proposer: fcl.authz,
-      payer: fcl.authz,
-      authorizations: [fcl.authz],
-      limit: 999,
-    });
-
-    console.log("Transaction Id", transactionId);
-  }
   const getAllFields = async () => {
     const fields = await fcl
       .send([fcl.script(getFields), fcl.args([])])

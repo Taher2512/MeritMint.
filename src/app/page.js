@@ -4,6 +4,7 @@ import HeroHeading from "./components/HomePage/foreground/HeroHeading";
 import ParticleRing from "./components/HomePage/background/ParticleRing";
 import Steps from "./components/HomePage/SecondPage/Steps";
 import Features from "./components/HomePage/SecondPage/Features";
+import Footer from "./components/Footer";
 
 export default function Home() {
   const firebaseConfig = {
@@ -28,6 +29,7 @@ export default function Home() {
         </div>
         <Steps />
         <Features />
+        <Footer/>
       </main>
     </>
   );

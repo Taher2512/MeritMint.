@@ -27,9 +27,11 @@ function page() {
           </span>
         </div>
 
-        <div className="w-5/6 mt-8 flex items-center justify-between gap-8 flex-wrap">
-          <Card />
-        </div>
+        {/* <div className="w-5/6 mt-8 flex items-center justify-start gap-8 flex-wrap">
+          
+        </div> */}
+        
+        
       </main>
     </>
   );

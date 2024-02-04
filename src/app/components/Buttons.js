@@ -14,6 +14,7 @@ import { IconType } from "react-icons";
 import { addField } from "../cadence/transactions/addField";
 import { getFields } from "../cadence/scripts/getFields";
 import { getPoints } from "../cadence/scripts/getPoints";
+import { useRouter } from "next/navigation";
 
 function Buttons({
   fetchResults,
@@ -30,6 +31,8 @@ function Buttons({
   // const [field, setField] = useState("Select Field");
   const [allFields, setAllFields] = useState([]);
   const [newField, setNewField] = useState("");
+
+  const router = useRouter();
 
   const Option = ({ text, /* Icon, */ setOpen }) => {
     return (
@@ -242,6 +245,12 @@ function Buttons({
         className="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 gilroy-bold rounded-lg text-lg px-5 py-2 text-center inline-flex items-center "
       >
         Results
+      </button>
+      <button
+        onClick={() => router.push("/add")}
+        className="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 gilroy-bold rounded-lg text-lg px-5 py-2 text-center inline-flex items-center "
+      >
+        Add Points
       </button>
     </div>
   );

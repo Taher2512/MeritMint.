@@ -190,7 +190,7 @@ const AddPointsForm = ({ fcl }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsOpen(false)}
-            className="bg-slate-900/20 backdrop-blur p-8 fixed inset-0 z-50 grid place-items-center overflow-y-scroll cursor-pointer "
+            className="bg-slate-900/20 backdrop-blur p-8 fixed inset-0 z-50 grid place-items-center overflow-y-scroll cursor-pointer h-72"
           >
             <motion.div
               initial={{ scale: 0, rotate: "12.5deg" }}
@@ -371,6 +371,14 @@ const AddPointsForm = ({ fcl }) => {
                   className="w-full py-2 px-4 gilroy-light bg-slate-200 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-gray-700 rounded-md shadow-sm"
                 />
                 <input
+                  type="text"
+                  name="walletAddress"
+                  value={field.walletAddress}
+                  onChange={(e) => handleChange(field.id, e)}
+                  placeholder="Wallet Address"
+                  className="w-full py-2 px-4 gilroy-light bg-slate-200 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-gray-700 rounded-md shadow-sm"
+                />
+                <input
                   type="number"
                   name="points"
                   value={field.points}
@@ -385,14 +393,7 @@ const AddPointsForm = ({ fcl }) => {
                   placeholder="Add Points"
                   className="w-1/4 py-2 px-4 gilroy-light bg-slate-200 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-gray-700 rounded-md shadow-sm"
                 />
-                <input
-                  type="text"
-                  name="walletAddress"
-                  value={field.walletAddress}
-                  onChange={(e) => handleChange(field.id, e)}
-                  placeholder="Wallet Address"
-                  className="w-1/4 py-2 px-4 gilroy-light bg-slate-200 border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-gray-700 rounded-md shadow-sm"
-                />
+                
               </div>
             ))}
             <button
